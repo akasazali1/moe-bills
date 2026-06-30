@@ -1,2 +1,0 @@
-# moe-bills
-Moe bills
