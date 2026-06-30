@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2><i class="bi bi-building"></i> SUT Office Spending - {{ year }}</h2>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">+ Add Spending</button>
+</div>
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr><th>Month</th><th>Description</th><th>Amount ($)</th><th>Updated By</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+        {% for rec in records %}
+        <tr>
+            <td>{{ rec.month }}</td>
+            <td>{{ rec.description }}</td>
+            <td>{{ rec.amount }}</td>
+            <td>{{ rec.updated_by }}</td>
+            <td><a href="{{ url_for('sut_delete', id=rec.id) }}" onclick="return confirm('Delete?')" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<!-- Add Modal -->
+<div class="modal fade" id="addModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST">
+                <div class="modal-header"><h5>Add SUT Spending</h5></div>
+                <div class="modal-body">
+                    <label>Month</label><input type="number" name="month" min="1" max="12" class="form-control" required>
+                    <label>Description</label><input type="text" name="description" class="form-control" required>
+                    <label>Amount ($)</label><input type="number" step="0.01" name="amount" class="form-control" required>
+                </div>
+                <div class="modal-footer"><button type="submit" class="btn btn-primary">Add</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
