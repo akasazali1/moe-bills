@@ -7,9 +7,6 @@ import csv
 import zipfile
 from datetime import datetime
 
-# ---- Startup log ----
-print(f"[STARTUP] SUPABASE_URL = {os.environ.get('SUPABASE_URL')}")
-
 app = Flask(__name__)
 app.secret_key = Config.SECRET_KEY
 
@@ -461,6 +458,93 @@ def backup():
                 print(f"Backup error for {table}: {e}")
     zip_buffer.seek(0)
     return send_file(zip_buffer, as_attachment=True, download_name=f"backup_{datetime.now().strftime('%Y%m%d')}.zip", mimetype='application/zip')
+
+# ---- DEPARTMENTS / ENTITIES MANAGEMENT (NEW) ----
+@app.route('/departments')
+def departments():
+    if not is_logged_in():
+        return redirect(url_for('login'))
+    # Fetch all departments
+    try:
+        depts = supabase.table('departments').select('*').order('name').execute().data
+    except Exception as e:
+        print("Departments fetch error:", e)
+        depts = []
+    return render_template('departments.html', departments=depts, user=get_current_user())
+
+@app.route('/departments/add', methods=['POST'])
+def departments_add():
+    if not is_logged_in():
+        return redirect(url_for('login'))
+    try:
+        data = {
+            'name': request.form['name'],
+            'type': request.form['type'],
+            'unit_name': request.form.get('unit_name', ''),
+            'division_name': request.form.get('division_name', ''),
+            'department_name': request.form.get('department_name', ''),
+            'hotline_numbers': request.form.get('hotline_numbers', ''),
+            'address': request.form.get('address', ''),
+            'notes': request.form.get('notes', ''),
+            'water_account': request.form.get('water_account', ''),
+            'water_meter': request.form.get('water_meter', ''),
+            'electricity_account': request.form.get('electricity_account', ''),
+            'electricity_meter': request.form.get('electricity_meter', ''),
+            'telephone_account': request.form.get('telephone_account', ''),
+            'telephone_number': request.form.get('telephone_number', ''),
+            'water_accounts': request.form.get('water_accounts', '[]'),
+            'water_meters': request.form.get('water_meters', '[]'),
+            'electricity_accounts': request.form.get('electricity_accounts', '[]'),
+            'electricity_meters': request.form.get('electricity_meters', '[]'),
+            'telephone_accounts': request.form.get('telephone_accounts', '[]'),
+            'telephone_numbers': request.form.get('telephone_numbers', '[]'),
+        }
+        supabase.table('departments').insert(data).execute()
+    except Exception as e:
+        print("Add department error:", e)
+    return redirect(url_for('departments'))
+
+@app.route('/departments/edit/<int:id>', methods=['POST'])
+def departments_edit(id):
+    if not is_logged_in():
+        return redirect(url_for('login'))
+    try:
+        data = {
+            'name': request.form['name'],
+            'type': request.form['type'],
+            'unit_name': request.form.get('unit_name', ''),
+            'division_name': request.form.get('division_name', ''),
+            'department_name': request.form.get('department_name', ''),
+            'hotline_numbers': request.form.get('hotline_numbers', ''),
+            'address': request.form.get('address', ''),
+            'notes': request.form.get('notes', ''),
+            'water_account': request.form.get('water_account', ''),
+            'water_meter': request.form.get('water_meter', ''),
+            'electricity_account': request.form.get('electricity_account', ''),
+            'electricity_meter': request.form.get('electricity_meter', ''),
+            'telephone_account': request.form.get('telephone_account', ''),
+            'telephone_number': request.form.get('telephone_number', ''),
+            'water_accounts': request.form.get('water_accounts', '[]'),
+            'water_meters': request.form.get('water_meters', '[]'),
+            'electricity_accounts': request.form.get('electricity_accounts', '[]'),
+            'electricity_meters': request.form.get('electricity_meters', '[]'),
+            'telephone_accounts': request.form.get('telephone_accounts', '[]'),
+            'telephone_numbers': request.form.get('telephone_numbers', '[]'),
+        }
+        supabase.table('departments').update(data).eq('id', id).execute()
+    except Exception as e:
+        print("Edit department error:", e)
+    return redirect(url_for('departments'))
+
+@app.route('/departments/delete/<int:id>')
+def departments_delete(id):
+    if not is_logged_in():
+        return redirect(url_for('login'))
+    try:
+        supabase.table('departments').delete().eq('id', id).execute()
+    except Exception as e:
+        print("Delete department error:", e)
+    return redirect(url_for('departments'))
 
 if __name__ == '__main__':
     app.run(debug=True)
