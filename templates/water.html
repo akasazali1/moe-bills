@@ -35,7 +35,8 @@
             <td>{{ rec.notes }}</td>
             <td>{{ rec.updated_by }}</td>
             <td>
-                <a href="{{ url_for('print_water', id=rec.id) }}" target="_blank" class="btn btn-sm btn-secondary"><i class="bi bi-printer"></i></a>
+                <!-- Print single record using the new route -->
+                <a href="{{ url_for('print_single', utility='water', id=rec.id) }}" target="_blank" class="btn btn-sm btn-secondary"><i class="bi bi-printer"></i></a>
                 <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editModal{{ rec.id }}"><i class="bi bi-pencil"></i></button>
                 <a href="{{ url_for('water_delete', id=rec.id) }}" onclick="return confirm('Delete this record?')" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></a>
             </td>
