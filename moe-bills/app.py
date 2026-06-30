@@ -84,9 +84,9 @@ def dashboard():
     total, used, remaining = get_budget(year)
     
     # Get latest entries (last 5 for each utility)
-    water_latest = supabase.table('water_bills').select('*').eq('year', year).order('created_at', desc=True).limit(5).execute()
-    elec_latest = supabase.table('electricity_bills').select('*').eq('year', year).order('created_at', desc=True).limit(5).execute()
-    tel_latest = supabase.table('telephone_bills').select('*').eq('year', year).order('created_at', desc=True).limit(5).execute()
+    water_latest = supabase.table('water_bills').select('*, departments(name)').eq('year', year).order('created_at', desc=True).limit(5).execute()
+    elec_latest = supabase.table('electricity_bills').select('*, departments(name)').eq('year', year).order('created_at', desc=True).limit(5).execute()
+    tel_latest = supabase.table('telephone_bills').select('*, departments(name)').eq('year', year).order('created_at', desc=True).limit(5).execute()
     
     return render_template('dashboard.html', 
                            user=session['user_email'],
@@ -120,7 +120,7 @@ def water():
             'updated_by': get_current_user()
         }
         supabase.table('water_bills').insert(data).execute()
-        update_budget_used(year)  # Recalculate budget
+        update_budget_used(year)
         return redirect(url_for('water'))
     
     # GET: show list
@@ -156,7 +156,7 @@ def water_delete(id):
     update_budget_used(get_current_year())
     return redirect(url_for('water'))
 
-# ---------- Electricity Bills (similar structure) ----------
+# ---------- Electricity Bills ----------
 @app.route('/electricity', methods=['GET', 'POST'])
 def electricity():
     if not get_current_user():
@@ -346,6 +346,62 @@ def reports():
     departments = supabase.table('departments').select('*').execute()
     return render_template('reports.html', departments=departments.data, results=results, selected_dept=selected_dept)
 
+# ---------- Central Print ----------
+@app.route('/print', methods=['GET', 'POST'])
+def print_select():
+    if not get_current_user():
+        return redirect(url_for('login'))
+    departments = supabase.table('departments').select('*').execute()
+    year = get_current_year()
+    if request.method == 'POST':
+        utility = request.form['utility']
+        year = request.form['year']
+        month = request.form.get('month')
+        dept_id = request.form.get('department_id')
+        
+        # Build query
+        table_map = {
+            'water': 'water_bills',
+            'electricity': 'electricity_bills',
+            'telephone': 'telephone_bills'
+        }
+        table = table_map[utility]
+        query = supabase.table(table).select('*, departments(name)').eq('year', year)
+        if month and month.strip():
+            query = query.eq('month', month)
+        if dept_id and dept_id.strip():
+            query = query.eq('department_id', dept_id)
+        res = query.execute()
+        records = res.data
+        
+        # Render print list template
+        return render_template('print_list.html',
+                               utility=utility,
+                               records=records,
+                               year=year,
+                               month=month,
+                               now=datetime.now().strftime('%Y-%m-%d %H:%M'))
+    return render_template('print_select.html', departments=departments.data, year=year)
+
+# ---------- Print Single Record ----------
+@app.route('/print/single/<utility>/<int:id>')
+def print_single(utility, id):
+    if not get_current_user():
+        return redirect(url_for('login'))
+    table_map = {
+        'water': 'water_bills',
+        'electricity': 'electricity_bills',
+        'telephone': 'telephone_bills'
+    }
+    if utility not in table_map:
+        return "Invalid utility", 404
+    table = table_map[utility]
+    record = supabase.table(table).select('*, departments(name)').eq('id', id).execute()
+    if not record.data:
+        return "Record not found", 404
+    rec = record.data[0]
+    return render_template('print_single.html', utility=utility, record=rec)
+
 # ---------- Backup (Download all data as CSV in a ZIP) ----------
 @app.route('/backup')
 def backup():
@@ -370,28 +426,6 @@ def backup():
     
     zip_buffer.seek(0)
     return send_file(zip_buffer, as_attachment=True, download_name=f"backup_{datetime.now().strftime('%Y%m%d')}.zip", mimetype='application/zip')
-
-# ---------- Print (single record) ----------
-@app.route('/print/water/<int:id>')
-def print_water(id):
-    if not get_current_user():
-        return redirect(url_for('login'))
-    record = supabase.table('water_bills').select('*, departments(name)').eq('id', id).execute()
-    return render_template('print_water.html', record=record.data[0])
-
-@app.route('/print/electricity/<int:id>')
-def print_electricity(id):
-    if not get_current_user():
-        return redirect(url_for('login'))
-    record = supabase.table('electricity_bills').select('*, departments(name)').eq('id', id).execute()
-    return render_template('print_electricity.html', record=record.data[0])
-
-@app.route('/print/telephone/<int:id>')
-def print_telephone(id):
-    if not get_current_user():
-        return redirect(url_for('login'))
-    record = supabase.table('telephone_bills').select('*, departments(name)').eq('id', id).execute()
-    return render_template('print_telephone.html', record=record.data[0])
 
 if __name__ == '__main__':
     app.run(debug=True)
