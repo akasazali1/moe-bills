@@ -1,121 +1,196 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2><i class="bi bi-building"></i> Entities (Schools & Departments)</h2>
+    <h2><i class="bi bi-building"></i> Entities</h2>
     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">+ Add Entity</button>
 </div>
 
-<table class="table table-bordered table-hover table-striped table-sm">
-    <thead class="table-dark">
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Water Accounts</th>
-            <th>Electricity Accounts</th>
-            <th>Telephone Accounts</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for dept in departments %}
-        <tr>
-            <td>{{ dept.id }}</td>
-            <td>{{ dept.name }}</td>
-            <td>{{ dept.type }}</td>
-            <td><small>{{ dept.water_accounts|truncate(30) }}</small></td>
-            <td><small>{{ dept.electricity_accounts|truncate(30) }}</small></td>
-            <td><small>{{ dept.telephone_accounts|truncate(30) }}</small></td>
-            <td>
-                <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editModal{{ dept.id }}"><i class="bi bi-pencil"></i></button>
-                <a href="{{ url_for('departments_delete', id=dept.id) }}" onclick="return confirm('Delete this entity? This may affect bills linked to it.')" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></a>
-            </td>
-        </tr>
-        <!-- Edit Modal -->
-        <div class="modal fade" id="editModal{{ dept.id }}" tabindex="-1">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content">
-                    <form method="POST" action="{{ url_for('departments_edit', id=dept.id) }}">
-                        <div class="modal-header"><h5>Edit Entity</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-                        <div class="modal-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <label>Name</label><input type="text" name="name" class="form-control" value="{{ dept.name }}" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label>Type</label>
-                                    <select name="type" class="form-control">
-                                        <option value="school" {% if dept.type=='school' %}selected{% endif %}>School</option>
-                                        <option value="department" {% if dept.type=='department' %}selected{% endif %}>Department</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <label>Unit Name</label><input type="text" name="unit_name" class="form-control" value="{{ dept.unit_name or '' }}">
-                                </div>
-                                <div class="col-md-4">
-                                    <label>Division Name</label><input type="text" name="division_name" class="form-control" value="{{ dept.division_name or '' }}">
-                                </div>
-                                <div class="col-md-4">
-                                    <label>Department Name</label><input type="text" name="department_name" class="form-control" value="{{ dept.department_name or '' }}">
-                                </div>
-                                <div class="col-md-4">
-                                    <label>Hotline Numbers</label><input type="text" name="hotline_numbers" class="form-control" value="{{ dept.hotline_numbers or '' }}">
-                                </div>
-                                <div class="col-md-8">
-                                    <label>Address</label><input type="text" name="address" class="form-control" value="{{ dept.address or '' }}">
-                                </div>
-                                <div class="col-12">
-                                    <label>Notes</label><textarea name="notes" class="form-control" rows="2">{{ dept.notes or '' }}</textarea>
-                                </div>
-                                <div class="col-md-6">
-                                    <label>Water Account (simple)</label><input type="text" name="water_account" class="form-control" value="{{ dept.water_account or '' }}">
-                                </div>
-                                <div class="col-md-6">
-                                    <label>Water Meter (simple)</label><input type="text" name="water_meter" class="form-control" value="{{ dept.water_meter or '' }}">
-                                </div>
-                                <div class="col-md-6">
-                                    <label>Electricity Account (simple)</label><input type="text" name="electricity_account" class="form-control" value="{{ dept.electricity_account or '' }}">
-                                </div>
-                                <div class="col-md-6">
-                                    <label>Electricity Meter (simple)</label><input type="text" name="electricity_meter" class="form-control" value="{{ dept.electricity_meter or '' }}">
-                                </div>
-                                <div class="col-md-6">
-                                    <label>Telephone Account (simple)</label><input type="text" name="telephone_account" class="form-control" value="{{ dept.telephone_account or '' }}">
-                                </div>
-                                <div class="col-md-6">
-                                    <label>Telephone Number (simple)</label><input type="text" name="telephone_number" class="form-control" value="{{ dept.telephone_number or '' }}">
-                                </div>
-                                <div class="col-12"><hr><h6>JSON Arrays (edit carefully)</h6></div>
-                                <div class="col-md-4">
-                                    <label>Water Accounts (JSON)</label><textarea name="water_accounts" class="form-control" rows="2">{{ dept.water_accounts or '[]' }}</textarea>
-                                </div>
-                                <div class="col-md-4">
-                                    <label>Water Meters (JSON)</label><textarea name="water_meters" class="form-control" rows="2">{{ dept.water_meters or '[]' }}</textarea>
-                                </div>
-                                <div class="col-md-4">
-                                    <label>Electricity Accounts (JSON)</label><textarea name="electricity_accounts" class="form-control" rows="2">{{ dept.electricity_accounts or '[]' }}</textarea>
-                                </div>
-                                <div class="col-md-4">
-                                    <label>Electricity Meters (JSON)</label><textarea name="electricity_meters" class="form-control" rows="2">{{ dept.electricity_meters or '[]' }}</textarea>
-                                </div>
-                                <div class="col-md-4">
-                                    <label>Telephone Accounts (JSON)</label><textarea name="telephone_accounts" class="form-control" rows="2">{{ dept.telephone_accounts or '[]' }}</textarea>
-                                </div>
-                                <div class="col-md-4">
-                                    <label>Telephone Numbers (JSON)</label><textarea name="telephone_numbers" class="form-control" rows="2">{{ dept.telephone_numbers or '[]' }}</textarea>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer"><button type="submit" class="btn btn-primary">Save changes</button></div>
-                    </form>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </tbody>
-</table>
+<!-- Tabs -->
+<ul class="nav nav-tabs" id="entityTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="schools-tab" data-bs-toggle="tab" data-bs-target="#schools" type="button" role="tab">
+            <i class="bi bi-mortarboard"></i> Schools
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="departments-tab" data-bs-toggle="tab" data-bs-target="#departments" type="button" role="tab">
+            <i class="bi bi-briefcase"></i> Departments
+        </button>
+    </li>
+</ul>
 
-<!-- Add Modal -->
+<div class="tab-content mt-3">
+    <!-- ==================== SCHOOLS TAB ==================== -->
+    <div class="tab-pane fade show active" id="schools" role="tabpanel">
+        <table class="table table-bordered table-hover table-striped table-sm">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Cluster</th>
+                    <th>School No.</th>
+                    <th>Water Accounts</th>
+                    <th>Elec. Accounts</th>
+                    <th>Tel. Accounts</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dept in departments if dept.type == 'school' %}
+                <tr>
+                    <td>{{ dept.id }}</td>
+                    <td>{{ dept.name }}</td>
+                    <td>{{ dept.cluster_number or '' }}</td>
+                    <td>{{ dept.school_number or '' }}</td>
+                    <td><small>{{ dept.water_accounts|tojson|truncate(30) if dept.water_accounts else '' }}</small></td>
+                    <td><small>{{ dept.electricity_accounts|tojson|truncate(30) if dept.electricity_accounts else '' }}</small></td>
+                    <td><small>{{ dept.telephone_accounts|tojson|truncate(30) if dept.telephone_accounts else '' }}</small></td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editModal{{ dept.id }}"><i class="bi bi-pencil"></i></button>
+                        <a href="{{ url_for('departments_delete', id=dept.id) }}" onclick="return confirm('Delete this entity?')" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></a>
+                    </td>
+                </tr>
+                <!-- Edit Modal for School -->
+                <div class="modal fade" id="editModal{{ dept.id }}" tabindex="-1">
+                    <div class="modal-dialog modal-xl">
+                        <div class="modal-content">
+                            <form method="POST" action="{{ url_for('departments_edit', id=dept.id) }}">
+                                <div class="modal-header"><h5>Edit Entity</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <div class="col-md-6"><label>Name</label><input type="text" name="name" class="form-control" value="{{ dept.name }}" required></div>
+                                        <div class="col-md-6"><label>Type</label>
+                                            <select name="type" class="form-control">
+                                                <option value="school" {% if dept.type=='school' %}selected{% endif %}>School</option>
+                                                <option value="department" {% if dept.type=='department' %}selected{% endif %}>Department</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4"><label>Unit Name</label><input type="text" name="unit_name" class="form-control" value="{{ dept.unit_name or '' }}"></div>
+                                        <div class="col-md-4"><label>Division Name</label><input type="text" name="division_name" class="form-control" value="{{ dept.division_name or '' }}"></div>
+                                        <div class="col-md-4"><label>Department Name</label><input type="text" name="department_name" class="form-control" value="{{ dept.department_name or '' }}"></div>
+                                        <div class="col-md-4"><label>Hotline Numbers</label><input type="text" name="hotline_numbers" class="form-control" value="{{ dept.hotline_numbers or '' }}"></div>
+                                        <div class="col-md-8"><label>Address</label><input type="text" name="address" class="form-control" value="{{ dept.address or '' }}"></div>
+                                        <div class="col-12"><label>Notes</label><textarea name="notes" class="form-control" rows="2">{{ dept.notes or '' }}</textarea></div>
+                                        <div class="col-md-6"><label>Water Account (simple)</label><input type="text" name="water_account" class="form-control" value="{{ dept.water_account or '' }}"></div>
+                                        <div class="col-md-6"><label>Water Meter (simple)</label><input type="text" name="water_meter" class="form-control" value="{{ dept.water_meter or '' }}"></div>
+                                        <div class="col-md-6"><label>Electricity Account (simple)</label><input type="text" name="electricity_account" class="form-control" value="{{ dept.electricity_account or '' }}"></div>
+                                        <div class="col-md-6"><label>Electricity Meter (simple)</label><input type="text" name="electricity_meter" class="form-control" value="{{ dept.electricity_meter or '' }}"></div>
+                                        <div class="col-md-6"><label>Telephone Account (simple)</label><input type="text" name="telephone_account" class="form-control" value="{{ dept.telephone_account or '' }}"></div>
+                                        <div class="col-md-6"><label>Telephone Number (simple)</label><input type="text" name="telephone_number" class="form-control" value="{{ dept.telephone_number or '' }}"></div>
+                                        <div class="col-12"><hr><h6>JSON Arrays</h6></div>
+                                        <div class="col-md-4"><label>Water Accounts (JSON)</label><textarea name="water_accounts" class="form-control" rows="2">{{ dept.water_accounts|tojson if dept.water_accounts else '[]' }}</textarea></div>
+                                        <div class="col-md-4"><label>Water Meters (JSON)</label><textarea name="water_meters" class="form-control" rows="2">{{ dept.water_meters|tojson if dept.water_meters else '[]' }}</textarea></div>
+                                        <div class="col-md-4"><label>Electricity Accounts (JSON)</label><textarea name="electricity_accounts" class="form-control" rows="2">{{ dept.electricity_accounts|tojson if dept.electricity_accounts else '[]' }}</textarea></div>
+                                        <div class="col-md-4"><label>Electricity Meters (JSON)</label><textarea name="electricity_meters" class="form-control" rows="2">{{ dept.electricity_meters|tojson if dept.electricity_meters else '[]' }}</textarea></div>
+                                        <div class="col-md-4"><label>Telephone Accounts (JSON)</label><textarea name="telephone_accounts" class="form-control" rows="2">{{ dept.telephone_accounts|tojson if dept.telephone_accounts else '[]' }}</textarea></div>
+                                        <div class="col-md-4"><label>Telephone Numbers (JSON)</label><textarea name="telephone_numbers" class="form-control" rows="2">{{ dept.telephone_numbers|tojson if dept.telephone_numbers else '[]' }}</textarea></div>
+                                        <!-- School-specific fields -->
+                                        <div class="col-md-4"><label>Cluster Number</label><input type="text" name="cluster_number" class="form-control" value="{{ dept.cluster_number or '' }}"></div>
+                                        <div class="col-md-4"><label>School Number</label><input type="text" name="school_number" class="form-control" value="{{ dept.school_number or '' }}"></div>
+                                        <div class="col-md-4"><label>BMO Phone</label><input type="text" name="bmo_phone" class="form-control" value="{{ dept.bmo_phone or '' }}"></div>
+                                        <div class="col-md-4"><label>BMO Name</label><input type="text" name="bmo_name" class="form-control" value="{{ dept.bmo_name or '' }}"></div>
+                                        <div class="col-md-4"><label>Display Order</label><input type="number" name="display_order" class="form-control" value="{{ dept.display_order or 0 }}"></div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer"><button type="submit" class="btn btn-primary">Save changes</button></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ==================== DEPARTMENTS TAB ==================== -->
+    <div class="tab-pane fade" id="departments" role="tabpanel">
+        <table class="table table-bordered table-hover table-striped table-sm">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Unit</th>
+                    <th>Division</th>
+                    <th>Hotline</th>
+                    <th>Water Accounts</th>
+                    <th>Elec. Accounts</th>
+                    <th>Tel. Accounts</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dept in departments if dept.type == 'department' %}
+                <tr>
+                    <td>{{ dept.id }}</td>
+                    <td>{{ dept.name }}</td>
+                    <td>{{ dept.unit_name or '' }}</td>
+                    <td>{{ dept.division_name or '' }}</td>
+                    <td>{{ dept.hotline_numbers or '' }}</td>
+                    <td><small>{{ dept.water_accounts|tojson|truncate(30) if dept.water_accounts else '' }}</small></td>
+                    <td><small>{{ dept.electricity_accounts|tojson|truncate(30) if dept.electricity_accounts else '' }}</small></td>
+                    <td><small>{{ dept.telephone_accounts|tojson|truncate(30) if dept.telephone_accounts else '' }}</small></td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editModal{{ dept.id }}"><i class="bi bi-pencil"></i></button>
+                        <a href="{{ url_for('departments_delete', id=dept.id) }}" onclick="return confirm('Delete this entity?')" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></a>
+                    </td>
+                </tr>
+                <!-- Edit Modal for Department (same structure, reusing the same modal above) -->
+                <!-- But for simplicity, we'll include it again with the same fields; the modal uses the same id pattern -->
+                <!-- The modal is already defined above, but we'll duplicate it for clarity -->
+                <div class="modal fade" id="editModal{{ dept.id }}" tabindex="-1">
+                    <div class="modal-dialog modal-xl">
+                        <div class="modal-content">
+                            <form method="POST" action="{{ url_for('departments_edit', id=dept.id) }}">
+                                <div class="modal-header"><h5>Edit Entity</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                                <div class="modal-body">
+                                    <!-- Same fields as above; you can use a macro to avoid duplication, but for simplicity we'll keep it -->
+                                    <div class="row">
+                                        <div class="col-md-6"><label>Name</label><input type="text" name="name" class="form-control" value="{{ dept.name }}" required></div>
+                                        <div class="col-md-6"><label>Type</label>
+                                            <select name="type" class="form-control">
+                                                <option value="school" {% if dept.type=='school' %}selected{% endif %}>School</option>
+                                                <option value="department" {% if dept.type=='department' %}selected{% endif %}>Department</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4"><label>Unit Name</label><input type="text" name="unit_name" class="form-control" value="{{ dept.unit_name or '' }}"></div>
+                                        <div class="col-md-4"><label>Division Name</label><input type="text" name="division_name" class="form-control" value="{{ dept.division_name or '' }}"></div>
+                                        <div class="col-md-4"><label>Department Name</label><input type="text" name="department_name" class="form-control" value="{{ dept.department_name or '' }}"></div>
+                                        <div class="col-md-4"><label>Hotline Numbers</label><input type="text" name="hotline_numbers" class="form-control" value="{{ dept.hotline_numbers or '' }}"></div>
+                                        <div class="col-md-8"><label>Address</label><input type="text" name="address" class="form-control" value="{{ dept.address or '' }}"></div>
+                                        <div class="col-12"><label>Notes</label><textarea name="notes" class="form-control" rows="2">{{ dept.notes or '' }}</textarea></div>
+                                        <div class="col-md-6"><label>Water Account (simple)</label><input type="text" name="water_account" class="form-control" value="{{ dept.water_account or '' }}"></div>
+                                        <div class="col-md-6"><label>Water Meter (simple)</label><input type="text" name="water_meter" class="form-control" value="{{ dept.water_meter or '' }}"></div>
+                                        <div class="col-md-6"><label>Electricity Account (simple)</label><input type="text" name="electricity_account" class="form-control" value="{{ dept.electricity_account or '' }}"></div>
+                                        <div class="col-md-6"><label>Electricity Meter (simple)</label><input type="text" name="electricity_meter" class="form-control" value="{{ dept.electricity_meter or '' }}"></div>
+                                        <div class="col-md-6"><label>Telephone Account (simple)</label><input type="text" name="telephone_account" class="form-control" value="{{ dept.telephone_account or '' }}"></div>
+                                        <div class="col-md-6"><label>Telephone Number (simple)</label><input type="text" name="telephone_number" class="form-control" value="{{ dept.telephone_number or '' }}"></div>
+                                        <div class="col-12"><hr><h6>JSON Arrays</h6></div>
+                                        <div class="col-md-4"><label>Water Accounts (JSON)</label><textarea name="water_accounts" class="form-control" rows="2">{{ dept.water_accounts|tojson if dept.water_accounts else '[]' }}</textarea></div>
+                                        <div class="col-md-4"><label>Water Meters (JSON)</label><textarea name="water_meters" class="form-control" rows="2">{{ dept.water_meters|tojson if dept.water_meters else '[]' }}</textarea></div>
+                                        <div class="col-md-4"><label>Electricity Accounts (JSON)</label><textarea name="electricity_accounts" class="form-control" rows="2">{{ dept.electricity_accounts|tojson if dept.electricity_accounts else '[]' }}</textarea></div>
+                                        <div class="col-md-4"><label>Electricity Meters (JSON)</label><textarea name="electricity_meters" class="form-control" rows="2">{{ dept.electricity_meters|tojson if dept.electricity_meters else '[]' }}</textarea></div>
+                                        <div class="col-md-4"><label>Telephone Accounts (JSON)</label><textarea name="telephone_accounts" class="form-control" rows="2">{{ dept.telephone_accounts|tojson if dept.telephone_accounts else '[]' }}</textarea></div>
+                                        <div class="col-md-4"><label>Telephone Numbers (JSON)</label><textarea name="telephone_numbers" class="form-control" rows="2">{{ dept.telephone_numbers|tojson if dept.telephone_numbers else '[]' }}</textarea></div>
+                                        <!-- Department-specific fields (school fields might be empty) -->
+                                        <div class="col-md-4"><label>Cluster Number</label><input type="text" name="cluster_number" class="form-control" value="{{ dept.cluster_number or '' }}"></div>
+                                        <div class="col-md-4"><label>School Number</label><input type="text" name="school_number" class="form-control" value="{{ dept.school_number or '' }}"></div>
+                                        <div class="col-md-4"><label>BMO Phone</label><input type="text" name="bmo_phone" class="form-control" value="{{ dept.bmo_phone or '' }}"></div>
+                                        <div class="col-md-4"><label>BMO Name</label><input type="text" name="bmo_name" class="form-control" value="{{ dept.bmo_name or '' }}"></div>
+                                        <div class="col-md-4"><label>Display Order</label><input type="number" name="display_order" class="form-control" value="{{ dept.display_order or 0 }}"></div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer"><button type="submit" class="btn btn-primary">Save changes</button></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ==================== ADD MODAL (Generic) ==================== -->
 <div class="modal fade" id="addModal" tabindex="-1">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
@@ -123,71 +198,37 @@
                 <div class="modal-header"><h5>Add New Entity</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-md-6">
-                            <label>Name</label><input type="text" name="name" class="form-control" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label>Type</label>
+                        <div class="col-md-6"><label>Name</label><input type="text" name="name" class="form-control" required></div>
+                        <div class="col-md-6"><label>Type</label>
                             <select name="type" class="form-control">
                                 <option value="school">School</option>
                                 <option value="department">Department</option>
                             </select>
                         </div>
-                        <div class="col-md-4">
-                            <label>Unit Name</label><input type="text" name="unit_name" class="form-control">
-                        </div>
-                        <div class="col-md-4">
-                            <label>Division Name</label><input type="text" name="division_name" class="form-control">
-                        </div>
-                        <div class="col-md-4">
-                            <label>Department Name</label><input type="text" name="department_name" class="form-control">
-                        </div>
-                        <div class="col-md-4">
-                            <label>Hotline Numbers</label><input type="text" name="hotline_numbers" class="form-control">
-                        </div>
-                        <div class="col-md-8">
-                            <label>Address</label><input type="text" name="address" class="form-control">
-                        </div>
-                        <div class="col-12">
-                            <label>Notes</label><textarea name="notes" class="form-control" rows="2"></textarea>
-                        </div>
-                        <div class="col-md-6">
-                            <label>Water Account (simple)</label><input type="text" name="water_account" class="form-control">
-                        </div>
-                        <div class="col-md-6">
-                            <label>Water Meter (simple)</label><input type="text" name="water_meter" class="form-control">
-                        </div>
-                        <div class="col-md-6">
-                            <label>Electricity Account (simple)</label><input type="text" name="electricity_account" class="form-control">
-                        </div>
-                        <div class="col-md-6">
-                            <label>Electricity Meter (simple)</label><input type="text" name="electricity_meter" class="form-control">
-                        </div>
-                        <div class="col-md-6">
-                            <label>Telephone Account (simple)</label><input type="text" name="telephone_account" class="form-control">
-                        </div>
-                        <div class="col-md-6">
-                            <label>Telephone Number (simple)</label><input type="text" name="telephone_number" class="form-control">
-                        </div>
-                        <div class="col-12"><hr><h6>JSON Arrays (for multiple accounts)</h6></div>
-                        <div class="col-md-4">
-                            <label>Water Accounts (JSON)</label><textarea name="water_accounts" class="form-control" rows="2">[]</textarea>
-                        </div>
-                        <div class="col-md-4">
-                            <label>Water Meters (JSON)</label><textarea name="water_meters" class="form-control" rows="2">[]</textarea>
-                        </div>
-                        <div class="col-md-4">
-                            <label>Electricity Accounts (JSON)</label><textarea name="electricity_accounts" class="form-control" rows="2">[]</textarea>
-                        </div>
-                        <div class="col-md-4">
-                            <label>Electricity Meters (JSON)</label><textarea name="electricity_meters" class="form-control" rows="2">[]</textarea>
-                        </div>
-                        <div class="col-md-4">
-                            <label>Telephone Accounts (JSON)</label><textarea name="telephone_accounts" class="form-control" rows="2">[]</textarea>
-                        </div>
-                        <div class="col-md-4">
-                            <label>Telephone Numbers (JSON)</label><textarea name="telephone_numbers" class="form-control" rows="2">[]</textarea>
-                        </div>
+                        <div class="col-md-4"><label>Unit Name</label><input type="text" name="unit_name" class="form-control"></div>
+                        <div class="col-md-4"><label>Division Name</label><input type="text" name="division_name" class="form-control"></div>
+                        <div class="col-md-4"><label>Department Name</label><input type="text" name="department_name" class="form-control"></div>
+                        <div class="col-md-4"><label>Hotline Numbers</label><input type="text" name="hotline_numbers" class="form-control"></div>
+                        <div class="col-md-8"><label>Address</label><input type="text" name="address" class="form-control"></div>
+                        <div class="col-12"><label>Notes</label><textarea name="notes" class="form-control" rows="2"></textarea></div>
+                        <div class="col-md-6"><label>Water Account (simple)</label><input type="text" name="water_account" class="form-control"></div>
+                        <div class="col-md-6"><label>Water Meter (simple)</label><input type="text" name="water_meter" class="form-control"></div>
+                        <div class="col-md-6"><label>Electricity Account (simple)</label><input type="text" name="electricity_account" class="form-control"></div>
+                        <div class="col-md-6"><label>Electricity Meter (simple)</label><input type="text" name="electricity_meter" class="form-control"></div>
+                        <div class="col-md-6"><label>Telephone Account (simple)</label><input type="text" name="telephone_account" class="form-control"></div>
+                        <div class="col-md-6"><label>Telephone Number (simple)</label><input type="text" name="telephone_number" class="form-control"></div>
+                        <div class="col-12"><hr><h6>JSON Arrays</h6></div>
+                        <div class="col-md-4"><label>Water Accounts (JSON)</label><textarea name="water_accounts" class="form-control" rows="2">[]</textarea></div>
+                        <div class="col-md-4"><label>Water Meters (JSON)</label><textarea name="water_meters" class="form-control" rows="2">[]</textarea></div>
+                        <div class="col-md-4"><label>Electricity Accounts (JSON)</label><textarea name="electricity_accounts" class="form-control" rows="2">[]</textarea></div>
+                        <div class="col-md-4"><label>Electricity Meters (JSON)</label><textarea name="electricity_meters" class="form-control" rows="2">[]</textarea></div>
+                        <div class="col-md-4"><label>Telephone Accounts (JSON)</label><textarea name="telephone_accounts" class="form-control" rows="2">[]</textarea></div>
+                        <div class="col-md-4"><label>Telephone Numbers (JSON)</label><textarea name="telephone_numbers" class="form-control" rows="2">[]</textarea></div>
+                        <div class="col-md-4"><label>Cluster Number</label><input type="text" name="cluster_number" class="form-control"></div>
+                        <div class="col-md-4"><label>School Number</label><input type="text" name="school_number" class="form-control"></div>
+                        <div class="col-md-4"><label>BMO Phone</label><input type="text" name="bmo_phone" class="form-control"></div>
+                        <div class="col-md-4"><label>BMO Name</label><input type="text" name="bmo_name" class="form-control"></div>
+                        <div class="col-md-4"><label>Display Order</label><input type="number" name="display_order" class="form-control" value="0"></div>
                     </div>
                 </div>
                 <div class="modal-footer"><button type="submit" class="btn btn-primary">Add Entity</button></div>
